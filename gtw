@@ -8,6 +8,9 @@ task_dir=$(git config --get gtw.repository || echo "$git_dir/task")
 branch=$(git config --get gtw.branch || echo tasks)
 remote=$(git config --get gtw.remote || echo origin)
 
+# How it works: We create a git-repository under gtw.repository and pull from
+# it into gtw.branch.
+
 function branch_exists() {
 	git show-ref --verify --quiet "$1"
 }
@@ -18,27 +21,27 @@ function msg() {
 
 if [ ! -d "$task_dir" ]; then
 	msg "taskwarrior repository not set up yet in $task_dir"
-	if branch_exists refs/heads/"$branch" || branch_exists refs/remotes/"$remote"/"$branch"; then
+	if branch_exists refs/heads/"$branch" || branch_exists refs/remotes/origin/"$branch"; then
 		if ! branch_exists refs/heads/"$branch"; then
 			msg "branch '$branch' exists in remote of main repository, checking out"
-			git branch --track "$branch" "$remote"/"$branch"
+			git branch --track "$branch" origin/"$branch"
 		fi
 		msg "branch '$branch' exists in main repository, cloning"
 		git clone "$git_dir" "$task_dir"
 		pushd "$task_dir" >/dev/null
-		git reset --hard "$remote"/"$branch"
+		git reset --hard origin/"$branch"
 		popd >/dev/null
 	else
 		msg "branch '$branch' does not exist either, creating both"
 		git init "$task_dir"
 		# TODO initial commit?
 		pushd "$task_dir" >/dev/null
-		test -n "$remote" && git remote add "$remote" "$git_dir" # TODO use a relative path to allow moving parent repo?
+		git remote add origin "$git_dir" # TODO use a relative path to allow moving parent repo?
 		popd
 	fi
 else
 	pushd "$task_dir" >/dev/null
-	test -n "$remote" && git pull --quiet --ff-only "$remote" "$branch"
+	git pull --quiet --ff-only origin "$branch"
 	popd >/dev/null
 fi
 
@@ -57,4 +60,4 @@ if ! git rev-parse HEAD &>/dev/null || ! git diff-index --cached --quiet HEAD --
 	git commit --quiet -m "task $command"
 fi
 
-test -n "$remote" && git push --quiet "$remote" master:$branch
+git push --quiet origin master:$branch
