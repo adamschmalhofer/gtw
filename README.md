@@ -14,12 +14,17 @@ gtw uses four optional config variables from the main git repository:
     git config gtw.repository /path/to/taskwarrior-repository
     git config gtw.branch tasks
     git config gtw.command task
+    git config gtw.taskdata-var-name TASKDATA
 
 If gtw.repository is unset, the taskwarrior repository will be created in .git/task.
 
 If gtw.branch is unset, tasks branch will be used by default.
 
 If gtw.command is unset, task will be used by default.
+
+If gtw.taskdata-var-name is unset, TASKDATA will be used by default. You won't
+want to change this if you use taskwarrior. This changes the variable name that
+is used to pass the path to the directory that the command uses for its files.
 
 Usage
 -----

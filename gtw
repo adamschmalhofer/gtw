@@ -7,6 +7,7 @@ task_command=$(git config --get gtw.command || echo "task")
 task_dir=$(git config --get gtw.repository || echo "$git_dir/task")
 branch=$(git config --get gtw.branch || echo tasks)
 remote=$(git config --get gtw.remote || echo origin)
+taskdata_var_name=$(git config --get gtw.taskdata-var-name || echo TASKDATA)
 
 # How it works: We create a git-repository under gtw.repository and pull from
 # it into gtw.branch.
@@ -49,7 +50,7 @@ command="$*"
 
 pushd "$task_dir" >/dev/null
 set +e
-TASKDATA="$task_dir" "$task_command" $*
+eval "$taskdata_var_name"="$task_dir" "$task_command" $*
 set -e
 git add --all .
 GIT_COMMITTER_NAME="gtw" \
